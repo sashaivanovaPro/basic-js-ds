@@ -1,23 +1,6 @@
-// const { ListNode } = require('../extensions/list-node.js');
+const { ListNode } = require('../extensions/list-node.js');
 
-/**
- * Implement the Queue with a given interface via linked list (use ListNode extension above).
- *
- * @example
- * const queue = new Queue();
- *
- * queue.enqueue(1); // adds the element to the queue
- * queue.enqueue(3); // adds the element to the queue
- * queue.dequeue(); // returns the top element from queue and deletes it, returns 1
- * queue.getUnderlyingList() // returns { value: 3, next: null }
- */
-class ListNode {
-  constructor(value) {
-    this.value = value;
-    this.next = null;
-  }
-}
-
+/** A FIFO queue backed by a singly linked list. */
 class Queue {
   constructor() {
     this.head = null;
@@ -28,29 +11,48 @@ class Queue {
   enqueue(value) {
     const node = new ListNode(value);
 
-    if (this.head) {
+    if (this.tail) {
       this.tail.next = node;
-      this.tail = node;
     } else {
       this.head = node;
-      this.tail = node;
     }
+
+    this.tail = node;
     this.length++;
   }
 
   dequeue() {
-    const current = this.head;
-    this.head = this.head.next;
+    if (!this.head) {
+      return undefined;
+    }
+
+    const node = this.head;
+    this.head = node.next;
     this.length--;
 
-    return current.value;
+    if (!this.head) {
+      this.tail = null;
+    }
+
+    return node.value;
   }
 
+  /** Return a plain-object snapshot of the linked list, preserving value references. */
   getUnderlyingList() {
-    return this.head;
+    const sentinel = { next: null };
+    let tail = sentinel;
+    let current = this.head;
+
+    while (current) {
+      tail.next = { value: current.value, next: null };
+      tail = tail.next;
+      current = current.next;
+    }
+
+    return sentinel.next;
   }
 }
 
 module.exports = {
-  Queue
+  Queue,
 };
